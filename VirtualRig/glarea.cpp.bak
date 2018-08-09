@@ -1,0 +1,643 @@
+#include <QtGui>
+#include <Qtimer.h>
+
+#include "glarea.h"
+#include "texture_manager.h"
+#include "skeleton.h"
+#include "bvh.h"
+#include "timer.h"
+#include "extended_pick.h"
+
+#include <wrap/gl/picking.h>
+#include <wrap/gl/pick.h>
+#include <wrap/gl/gl_geometry.h>
+#include <wrap/qt/trackball.h>
+
+// include headers that implement a archive in xml format
+#include <fstream>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/serialization/nvp.hpp>
+
+BVH bvh;
+bool	on_animation = false;
+float	animation_time = 0.0f;
+int		frame_no = 0;
+double fps;
+double dt;
+
+vector<CMesh::CoordType> dpoints;
+
+
+GLArea::GLArea (QWidget * parent) : QGLWidget (parent) 
+{
+	drawmode = SMOOTH/*FLATWIRE*/;
+
+	loadMesh("data/masha.xml");
+
+	pick_on = false;
+	skel_edit_mode = false;
+	skel_anim_mode = false;
+	is_linking = false;
+	picked.clear();
+
+	setMouseTracking(true);
+
+	//for animation
+	QTimer *timer = new QTimer( this ); 
+	connect( timer, SIGNAL(timeout()), this, SLOT(Update()) ); 
+	timer->setSingleShot( false );
+	timer->start( 4 );
+}
+
+void GLArea::selectDrawMode(int mode)
+{
+	drawmode = DrawMode(mode);
+	updateGL();
+}
+
+void GLArea::loadMesh(QString fileName)
+{	
+	QFileInfo fi(fileName);
+	QString dir = fi.absolutePath();
+	bool res = QDir::setCurrent(dir);
+
+	bvh.Load("01_01.bvh");
+
+	fileName = fi.fileName();
+
+	//// save model configuration
+	//{
+	//	std::ofstream ofs(fileName.toStdString().c_str());
+	//	assert(ofs.good());
+	//	boost::archive::xml_oarchive oa(ofs);
+	//	oa << BOOST_SERIALIZATION_NVP(model);
+	//}
+
+	//// load model configuration
+	//std::ifstream ifs(fileName.toStdString().c_str());
+	//assert(ifs.good());
+	//boost::archive::xml_iarchive ia(ifs);
+	//ia >> BOOST_SERIALIZATION_NVP(mesh_gl);
+
+	initMesh("Loaded " + fileName);
+}
+
+void GLArea::initMesh(QString message)
+{
+	string err_msg = model.Init();
+	if(!err_msg.empty())
+	{
+		QMessageBox::warning(this,tr("Error Loading Mesh"),QString(err_msg.c_str()));
+		close();
+	}
+
+	//bvh.scalex = model.skeleton->bbox.DimX();
+	//bvh.scaley = model.skeleton->bbox.DimY();
+	//bvh.scalez = model.skeleton->bbox.DimZ();
+
+	for (int i = 0; i < model.skeleton->vert.size(); i++)
+		dpoints.push_back(model.skeleton->vert[i]);
+
+	show_gl_info = false;	
+
+	updateGL();
+	emit setStatusBar(message);	
+}
+
+void GLArea::initializeGL ()
+{
+	glClearColor(0, 0, 0, 0); 
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	glEnable(GL_NORMALIZE);
+	glEnable(GL_COLOR_MATERIAL);
+//	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
+
+	static bool glew_init = false;
+	if (!glew_init)
+	{
+		GLenum res = glewInit();
+		glew_init = true;
+	}
+
+	playing = false;
+	curr_frame = 0;
+}
+
+void GLArea::resizeGL (int w, int h)
+{
+	glViewport (0, 0, (GLsizei) w, (GLsizei) h); 
+	initializeGL();
+}
+
+void draw_picked_point(Point3f & p)
+{
+	glPointSize(6);
+	glBegin(GL_POINTS);
+	glVertex(p);
+	glEnd();
+	//glPushMatrix();
+	//glTranslate(p);
+	//glutSolidSphere(model.meshes[0]->bbox.Diag(), 10, 10);
+	//glPopMatrix();
+}
+
+void GLArea::Update()
+{
+	static double past = GetRealTimeInMS();
+	double now = GetRealTimeInMS();
+
+	fps = 1000.f / (now - past);
+
+	if ( on_animation )
+	{
+		animation_time += (now - past) * 0.001f;
+
+		frame_no = animation_time / bvh.GetInterval();
+		frame_no = frame_no % bvh.GetNumFrame();
+
+	}
+
+	past = now;
+	updateGL();
+}
+
+void GLArea::paintGL ()
+{
+	double t0 = GetRealTimeInMS();
+
+	if (!show_gl_info)
+		ShowGlInfo();
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(35, GLArea::width()/(float)GLArea::height(), 0.01, 35);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	gluLookAt(0,0,5,   0,0,0,   0,1,0);
+	track.center=vcg::Point3f(0, 0, 0);
+	track.radius= 1;
+	track.GetView();
+	track.Apply(false);
+	glPushMatrix();
+	float d = 4.5f / model.meshes[0]->bbox.Diag();
+	////	float d = 2.5f / model.skeleton->bbox.Diag();
+	if (!model.meshes[0]->morphs.empty())
+		d = 1.0f / model.meshes[0]->morphs[0]->bbox.Diag();
+	vcg::glScale(d);
+	if (model.meshes[0]->morphs.empty())
+		glTranslate(-model.meshes[0]->bbox.Center());	
+	else
+	{
+		glTranslate(-model.meshes[0]->morphs[0]->bbox.Center());
+		glTranslatef( 0, model.meshes[0]->morphs[0]->bbox.Diag() / 20, 0);
+	}
+	////	glTranslate(-model.skeleton->bbox.Center());	
+
+	updateMouse3d();
+
+
+	//	bvh.RenderFigure( frame_no, 1.f );
+
+	//GLfloat lpos[4] = {50, 200, 150, 1};
+	//glLightfv(GL_LIGHT0, GL_POSITION, lpos);
+
+	model.Draw();
+	if ((pick_on) && skel_anim_mode)
+	{
+		glDisable(GL_BLEND);
+		glEnable(GL_DEPTH_TEST);
+		int res = Pick(	mouse_pos[0], height() - mouse_pos[1], model.skeleton->vert, picked, draw_picked_point, 4, 4);
+		if (res > 0)
+			glReadPixels(mouse_pos[0], height() - mouse_pos[1], 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &dist);
+
+		//		printf("x: %d\ty: %d\tres: %d\tdist: %.3f\n", mouse_pos[0], mouse_pos[1], res, dist);
+		pick_on = false;	
+
+	}
+
+	if (pick_on && skel_edit_mode)
+	{
+		vector<CMesh::FacePointer> picked_faces;
+		int nres = GLExtendedPickTri<CMesh, CMesh::SpatialGridType>::PickFaces(mouse_pos[0], height() - mouse_pos[1], *model.meshes[0], model.meshes[0]->spatial_grid, picked_faces);
+		if (nres > 0)
+		{
+			CMesh::CoordType p(0, 0, 0);
+			for (int i = 0; i < nres; i++)
+			{
+				CFace & f = *picked_faces[i];
+				for (int j = 0; j < 3; j++)
+					p += f.P(j);
+			}
+			p /= nres * 3;
+			dpoints.push_back(p);
+			model.skeleton->AddLink(p);
+		}
+
+		cout << "picked points: " << dpoints.size() << endl;
+		pick_on = false;	
+	}
+
+	if (!dpoints.empty())
+	{
+		glEnable(GL_BLEND);
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_LIGHTING);
+
+		glPointSize(6);
+		if (skel_edit_mode)
+		{
+			int res = Pick(	mouse_pos[0], height() - mouse_pos[1], dpoints, selected, draw_picked_point);
+//			cout << "selected points: " << selected.size() << endl;
+
+			if (!selected.empty() && is_linking)
+			{
+				if (new_link.empty())
+					new_link.push_back(*selected.back());
+				else if (new_link.size() == 1)
+				{
+					if (*selected.back() != new_link[0])
+						new_link.push_back(*selected.back());
+				}
+				else if (new_link.size() == 2)
+				{
+					model.skeleton->AddLink(new_link[0], new_link[1]);
+					new_link.clear();
+					is_linking = false;
+				}
+			}
+		}
+		glBegin(GL_POINTS);
+		glColor3f(1, 0, 0);		
+		for (int i = 0; i < dpoints.size(); i++)			
+			glVertex(dpoints[i]);
+		glColor3f(0, 1, 0);		
+		for (int i = 0; i < selected.size(); i++)			
+			glVertex(*selected[i]);
+		glEnd();
+
+		//if (!new_link.empty())
+		//{
+		//	glBegin(GL_LINES);
+		//	glVertex(new_link[0]);
+		//	if (new_link.size() == 1)
+		//		glVertex(mouse_pos3);
+		//	//else
+		//	//	glVertex(new_link[1]);
+		//	glEnd();
+		//}
+		glDisable(GL_BLEND);
+		glEnable(GL_DEPTH_TEST);
+	}
+
+	if (!picked.empty())
+	{
+		glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
+
+		glColor4f(0, 1, 0, 1);
+		glPointSize(8.f);
+		glBegin(GL_POINTS);
+		glVertex(*picked[0]);
+		glEnd();
+
+		glColor4f(0, 1, 0, 1);
+		glPointSize(8.f);
+		glBegin(GL_LINES);
+		glVertex(*picked[0]);
+		glVertex(mouse_pos3);
+		glEnd();
+
+		glPopAttrib();
+
+		picked[0]->X() = mouse_pos3[0];
+		picked[0]->Y() = mouse_pos3[1];
+		picked[0]->Z() = mouse_pos3[2];
+
+	}
+	//	shp->Bind();
+	/*
+	// the trimesh drawing calls
+	switch(drawmode)
+	{
+	case SMOOTH: 
+	//		glw.Draw<vcg::GLW::DMSmooth,   vcg::GLW::CMNone, GLW::TMPerWedgeMulti>();
+	glw.Draw<vcg::GLW::DMSmooth,   vcg::GLW::CMPerVert, vcg::GLW::TMNone> ();
+	break;
+	case POINTS: 
+	glw.Draw<vcg::GLW::DMPoints,   vcg::GLW::CMNone,vcg::GLW::TMNone> ();
+	break;
+	case WIRE: 
+	glw.Draw<vcg::GLW::DMWire,     vcg::GLW::CMNone,vcg::GLW::TMNone> ();
+	break;
+	case FLATWIRE: 
+	glw.Draw<vcg::GLW::DMFlatWire, vcg::GLW::CMNone, GLW::TMPerWedgeMulti> ();
+	break;
+	case HIDDEN: 
+	glw.Draw<vcg::GLW::DMHidden,   vcg::GLW::CMNone,vcg::GLW::TMNone> ();
+	break;
+	case FLAT: 
+	glw.Draw<vcg::GLW::DMFlat,     vcg::GLW::CMNone,vcg::GLW::TMNone> ();
+	break;
+	default: 
+	break;
+	}
+	*/
+	//	shp->Unbind();
+
+	glPopMatrix();
+
+	//	track.DrawPostApply();
+
+
+	if (playing)
+	{
+		model.ApplyMorph(curr_frame);
+
+		QString filename;
+		filename = QString(model.anim_dir.c_str()) + QString("_seq_") + QString::number(curr_frame) + QString(".png");
+		grabFrameBuffer().save(filename);
+		curr_frame++;
+		if (curr_frame >= model.GetNbMorphs())
+			playing = false;
+	}
+	else
+	{
+		double t1 = GetRealTimeInMS();
+
+		dt = t1 - t0;
+		glColor4f(1, 1, 1, 1);
+		renderText ( 10, 10, QString("fps: %1\t\tdt: %2").arg(fps).arg(dt));
+	}
+
+} 
+
+void GLArea::PlayAnimation()
+{
+	playing = true;
+	curr_frame = 0;
+}
+
+void GLArea::keyReleaseEvent (QKeyEvent * e)
+{
+	e->ignore ();
+	if (e->key () == Qt::Key_I)
+		PlayAnimation();
+
+	if (e->key () == Qt::Key_G)
+	{
+		skel_edit_mode = !skel_edit_mode;
+		cout << "skeleton editing mode: " << skel_edit_mode << endl;
+	}
+	if (e->key () == Qt::Key_H)
+		model.HeatWeights();
+
+	if (e->key () == Qt::Key_J)
+	{
+		skel_anim_mode = !skel_anim_mode;
+		cout << "skeleton animation mode: " << skel_anim_mode << endl;
+	}
+
+
+	if (e->key () == Qt::Key_R)
+		model.skeleton->Reset();
+
+	if (e->key () == Qt::Key_S)
+	{
+		model.skeleton->filename = "foo.skel";
+		model.skeleton->Save();
+	}
+
+	if (e->key () == Qt::Key_P)
+		on_animation = !on_animation;
+	if (e->key () == Qt::Key_A)
+		model.skeleton->DecBoneToShow();
+	if (e->key () == Qt::Key_D)
+		model.skeleton->IncBoneToShow();
+	if (e->key () == Qt::Key_Control)
+		track.ButtonUp (QT2VCG (Qt::NoButton, Qt::ControlModifier));
+	if (e->key () == Qt::Key_Shift)
+		track.ButtonUp (QT2VCG (Qt::NoButton, Qt::ShiftModifier));
+	if (e->key () == Qt::Key_Alt)
+		track.ButtonUp (QT2VCG (Qt::NoButton, Qt::AltModifier));
+
+
+	if ((e->key () == Qt::Key_Shift) && skel_edit_mode)
+	{
+		is_linking = false;
+		new_link.clear();
+		cout << "linking deactivated" << endl;
+	}
+
+	updateGL ();
+}
+
+void GLArea::keyPressEvent (QKeyEvent * e)
+{
+	e->ignore ();
+	if (e->key () == Qt::Key_Control)
+		track.ButtonDown (QT2VCG (Qt::NoButton, Qt::ControlModifier));
+	if (e->key () == Qt::Key_Shift)
+		track.ButtonDown (QT2VCG (Qt::NoButton, Qt::ShiftModifier));
+	if (e->key () == Qt::Key_Alt)
+		track.ButtonDown (QT2VCG (Qt::NoButton, Qt::AltModifier));
+
+	if ((e->key () == Qt::Key_Shift) && skel_edit_mode)
+	{
+		cout << "linking activated" << endl;
+		is_linking = true;
+	}
+
+	updateGL ();
+}
+
+void GLArea::mousePressEvent (QMouseEvent * e)
+{
+	e->accept ();
+	setFocus ();
+	if ((e->button() == Qt::RightButton) && (skel_edit_mode || skel_anim_mode))
+		pick_on = true;
+
+	track.MouseDown (e->x (), height () - e->y (), QT2VCG (e->button (), e->modifiers ()));
+	mouse_pos[0] = e->x();
+	mouse_pos[1] = e->y();
+
+	//	cout << "mousePressEvent " << mouse_pos[0] << " " << mouse_pos[1] << endl;
+	updateGL ();
+}
+
+void GLArea::mouseMoveEvent (QMouseEvent * e)
+{
+	mouse_pos[0] = e->x();
+	mouse_pos[1] = e->y();
+	if (e->buttons ()) {
+		track.MouseMove (e->x (), height () - e->y ());
+	}
+
+//		cout << "mouseMoveEvent " << mouse_pos[0] << " " << mouse_pos[1] << endl;
+
+	updateGL ();
+}
+
+void GLArea::mouseReleaseEvent (QMouseEvent * e)
+{
+	track.MouseUp (e->x (), height () - e->y (), QT2VCG (e->button (), e->modifiers ()));
+
+	mouse_pos[0] = e->x();
+	mouse_pos[1] = e->y();
+
+	if (e->button() == Qt::RightButton)
+	{
+		picked.clear();
+	}	
+
+	//	cout << "mouseReleaseEvent " << mouse_pos[0] << " " << mouse_pos[1] << endl;
+
+	updateGL ();
+}
+
+void GLArea::wheelEvent (QWheelEvent * e)
+{
+	const int WHEEL_STEP = 120;
+	track.MouseWheel (e->delta () / float (WHEEL_STEP), QTWheel2VCG (e->modifiers ()));
+	updateGL ();
+}
+
+void GLArea::ShowGlInfo()
+{
+#if 0
+
+	LOAD TEXTURES WITH QT
+		if (true)//(hasToUpdateTexture)
+		{
+			//      foreach (MeshModel *mp,this->md()->meshList)
+			mesh_gl.glw.TMId.clear();
+
+			// qDebug("Beware: deleting the textures could lead to problems for shared textures.");
+			//		hasToUpdateTexture = false;
+		}
+
+		//    foreach (MeshModel *mp, this->md()->meshList)
+		{
+			if(! mesh_gl.textures.empty() && mesh_gl.glw.TMId.empty())
+			{
+				GLint MaxTextureSize;
+				glGetIntegerv(GL_MAX_TEXTURE_SIZE,&MaxTextureSize);
+				printf("maximal allowed texture size is : %d\n", MaxTextureSize);
+
+				for(unsigned int i = 0; i < mesh_gl.textures.size(); ++i)
+				{
+					GLuint id = -1;
+					bool res = TextureManager::Inst()->Load(mesh_gl.textures[i].c_str(), id);
+					if (!res) 
+						printf("Failure of loading texture %s\n", mesh_gl.textures[i].c_str());
+					mesh_gl.glw.TMId.push_back(id);
+
+					//glEnable(GL_TEXTURE_2D);
+					//QImage img, imgScaled, imgGL;
+
+					//bool res = img.load(mesh_gl.textures[i].c_str());
+
+					//if(!res)
+					//{
+					//	// Note that sometimes (in collada) the texture names could have been encoded with a url-like style (e.g. replacing spaces with '%20') so making some other attempt could be harmless
+					//	QString ConvertedName = QString(mesh_gl.textures[i].c_str()).replace(QString("%20"), QString(" "));
+					//	res = img.load(ConvertedName);
+					//	if(!res) qDebug("Failure of loading texture %s", mesh_gl.textures[i].c_str());
+					//	else qDebug("Warning, texture loading was successful only after replacing %%20 with spaces;\n Loaded texture %s instead of %s",qPrintable(ConvertedName),mesh_gl.textures[i].c_str());
+					//}
+					//if(!res && QString(mesh_gl.textures[i].c_str()).endsWith("dds",Qt::CaseInsensitive))
+					//{
+					//	qDebug("DDS binding!");
+					//	int newTexId = bindTexture(QString(mesh_gl.textures[i].c_str()));
+					//	mesh_gl.glw.TMId.push_back(newTexId);
+					//}
+					//else
+					//{
+					//	// image has to be scaled to a 2^n size. We choose the first 2^N <= picture size.
+					//	int bestW=pow(2.0,floor(::log(double(img.width() ))/::log(2.0)));
+					//	int bestH=pow(2.0,floor(::log(double(img.height()))/::log(2.0)));
+					//	while(bestW>MaxTextureSize) bestW /=2;
+					//	while(bestH>MaxTextureSize) bestH /=2;
+
+					//	printf("Loading textures\n");
+					//	printf("Texture[ %3i ] =  '%s' ( %6i x %6i ) -> ( %6i x %6i )\n",	i, mesh_gl.textures[i].c_str(), img.width(), img.height(), bestW, bestH);
+					//	//log->Log(GLLogStream::SYSTEM,"Loading textures");
+					//	//log->Logf(GLLogStream::SYSTEM,"	Texture[ %3i ] =  '%s' ( %6i x %6i ) -> ( %6i x %6i )",	i,mp->cm.textures[i].c_str(), img.width(), img.height(),bestW,bestH);
+					//	imgScaled = img.scaled(bestW, bestH, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+					//	imgGL = convertToGLFormat(imgScaled);
+					//	mesh_gl.glw.TMId.push_back(0);
+
+					//	glGenTextures( 1, (GLuint*)&(mesh_gl.glw.TMId.back()) );
+					//	glBindTexture( GL_TEXTURE_2D, mesh_gl.glw.TMId.back() );
+					//	glTexImage2D( GL_TEXTURE_2D, 0, 3, imgGL.width(), imgGL.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, imgGL.bits() );
+					//	gluBuild2DMipmaps(GL_TEXTURE_2D, 3, imgGL.width(), imgGL.height(), GL_RGBA, GL_UNSIGNED_BYTE, imgGL.bits() );
+					//	qDebug("      	will be loaded as GL texture id %i  ( %i x %i )", mesh_gl.glw.TMId.back(), imgGL.width(), imgGL.height());
+					//}
+
+					////if (glas.textureMagFilter == 0 ) 	
+					////	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+					////else	
+					//	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+
+					////if (glas.textureMinFilter == 0 ) 	
+					////	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+					////else	
+					//	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
+
+					//glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+				}
+			}
+			//		glDisable(GL_TEXTURE_2D);
+		}
+
+#endif
+		GLint MaxTextureSize;
+		glGetIntegerv(GL_MAX_TEXTURE_SIZE,&MaxTextureSize);
+		printf("maximal allowed texture size is : %d\n", MaxTextureSize);
+		int n;
+		glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &n);
+		printf ("GL_MAX_VERTEX_ATTRIBS: %d\n", n);
+
+		show_gl_info = true;
+		pick_on = false;
+		picked.clear();
+}
+
+void GLArea::SetMorph(int index)
+{
+	model.ApplyMorph(index);
+}
+
+
+void GLArea::setShininess(int val)
+{
+	//shininess = val / 10.f;
+	//shp->prog.Bind();
+	//shp->prog.Uniform("shininess", shininess);
+	//shp->prog.Unbind();
+
+	//printf("%.4f\n", shininess);
+
+	updateGL();
+}
+
+
+void GLArea::updateMouse3d()
+{
+	GLdouble p[3];
+	vcg::Matrix44d m, prm;
+	int viewport[4];
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	glGetDoublev(GL_MODELVIEW_MATRIX, &m[0][0]);
+	glGetDoublev(GL_PROJECTION_MATRIX, &prm[0][0]);
+
+	gluUnProject(mouse_pos[0],  height() - mouse_pos[1], dist, &m[0][0], &prm[0][0], viewport, &p[0], &p[1], &p[2]);
+
+	mouse_pos3 = Point3f(p[0], p[1], p[2]);
+	//printf("%d\t%d\n",				mouse_pos[0],  mouse_pos[1]);
+	//printf("%.3f\t%.3f\t%.3f\n",	mouse_pos3[0], mouse_pos3[1], mouse_pos3[2]);
+}

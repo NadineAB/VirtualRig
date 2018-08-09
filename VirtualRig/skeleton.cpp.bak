@@ -1,0 +1,430 @@
+#include "skeleton.h"
+#include "mesh.h"
+
+#include <fstream>
+#include <limits>
+#include <GL/glew.h>
+
+#include <vcg/space/segment3.h>
+#include <vcg/space/distance3.h>
+#include <wrap/gl/space.h>
+#include <wrap/gl/gl_geometry.h>
+
+#include <boost/foreach.hpp>
+#include <boost/tokenizer.hpp>
+
+using namespace boost;
+
+
+int CSkeleton::Load()
+{
+	link.clear();
+	vert.clear();
+	bone_to_show_index = -1;
+
+	if (filename.empty())
+		return -1;
+
+	assert(!filename.empty());
+	int result = 0;//vcg::tri::io::ImporterOBJ<CMesh>::E_NOERROR;
+
+	ifstream stream(filename.c_str());
+	if (stream.fail())
+		return -1;//vcg::tri::io::ImporterOBJ<CMesh>::E_CANTOPEN;
+
+	if(stream.eof()) 
+		return result;
+	char_separator<char> sep(" ");
+	do
+	{
+		string line;
+		getline(stream, line);
+		if (!line.empty())
+		{
+			tokenizer<char_separator<char>> tokens(line, sep);
+			vector<float> data;
+			BOOST_FOREACH(string num, tokens)
+			{
+				double temp = ::atof(num.c_str());
+				data.push_back(temp);
+			}
+			assert(data.size() == 5);
+
+			CLink l;
+			l.node = data[0];
+			Point3f p = Point3f(data[1], data[2], data[3]);
+			l.parent = data[4];
+			link.push_back(l);
+			vert.push_back(p);
+			vert_rest.push_back(p);
+		}
+	}	
+	while (!stream.eof());  
+
+	// assign childs
+	for (int i = 0; i < link.size(); i++)
+	{
+		if (link[i].parent == -1)	// skip the root(s)
+			continue;
+
+//		CLink & parent = link[link[i].parent];
+		int i_parent = FindLink(link[i].parent);
+		CLink & parent = link[i_parent];
+		parent.childs.push_back(i);	// note: bone[i].node is equal to i
+	}
+
+	Init();
+
+	return result;
+}
+
+
+int CSkeleton::Save()
+{
+	if (filename.empty())
+		return -1;
+
+	assert(!filename.empty());
+	int result = 0;//vcg::tri::io::ImporterOBJ<CMesh>::E_NOERROR;
+
+	cout << "saving " << filename << endl;
+	ofstream stream(filename.c_str());
+	if (stream.fail())
+		return -1;//vcg::tri::io::ImporterOBJ<CMesh>::E_CANTOPEN;
+
+	for (int i = 0; i < bone.size(); i++)
+	{
+		if (bone[i].parent == -1)
+			stream << bone[i].node << " " << vert[bone[i].node][0] << " " << vert[bone[i].node][1] << " " << vert[bone[i].node][2] << " " << bone[i].parent << endl;
+		stream << bone[i].child << " " << vert[bone[i].child][0] << " " << vert[bone[i].child][1] << " " << vert[bone[i].child][2] << " " << bone[i].node << endl;
+	}
+
+	return 0;
+}
+
+
+void CSkeleton::Reset()
+{
+	for (int i = 0; i < vert.size(); i++)
+		vert[i] = vert_rest[i];
+
+	InitLocalFrame();
+}
+
+void CSkeleton::Init()
+{
+	// build the bones
+	bone.clear();
+	bbox.SetNull();
+	bone_to_show_index = -1;
+
+	for (int i = 0; i < link.size(); i++)
+	{
+		CLink & l = link[i];
+		for (int j = 0; j < l.childs.size(); j++)
+		{
+			CBone b; 
+			b.node = i;
+			b.parent = l.parent;
+			b.child = l.childs[j];
+			b.L.SetIdentity();
+			b.rdist = (vert[b.child] - vert[b.node]).Norm();
+
+			bone.push_back(b);
+		}
+		bbox.Add(vert[i]);					// init bounding box
+	}
+
+
+	InitLocalFrame();
+
+#if 0
+	// assign each vertex of the mesh to a local reference frame of the matrix
+	if (mesh)
+	for (CMesh::VertexIterator vi = mesh->vert.begin(); vi != mesh->vert.end(); vi++)
+	{
+		Point3f & vpos = vi->P();
+		float _min = std::numeric_limits<float>::max();
+		int index = -1;
+
+		for (int i = 0; i < bone.size(); i++)
+		{
+			// find the bone nearest to the current vertex
+			Point3f & s = vert[bone[i].node];
+			Point3f & d = vert[bone[i].child];
+			Segment3f seg_bone(s, d);
+			float dist;
+
+			Point3f clos;
+			//dist = SquaredDistance<float>(seg_bone, vpos);
+
+			Point3f	 dir = (d - s).Normalize();
+			float h = dir * (vpos - s);
+			if ((h <= 0.0) || h > seg_bone.Length())
+				continue;	// this bone is discarded
+
+			SegmentPointSquaredDistance<float>( seg_bone, vpos, clos, dist); 
+			if (dist < _min)
+			{
+				_min = dist;
+				index = i;
+			}
+		}
+
+		if (index != -1)
+			bone[index].vp.push_back(&*vi);
+	}
+#endif
+}
+
+void CSkeleton::Assign(CMesh * _mesh)
+{
+	mesh = _mesh ;
+}
+
+void CSkeleton::InitLocalFrame()
+{
+	// init local coordinate frame
+	for (int i = 0; i < bone.size(); i++)
+	{
+		Point3f & s = vert[bone[i].node];
+		Point3f & d = vert[bone[i].child];
+
+		bone[i].z = (d - s).Normalize();
+		bone[i].z_prev = bone[i].z;
+
+		if ((bone[i].z * Point3f(0, 0, 1)) > 0)
+			bone[i].y = Point3f(0, 1, 0);
+		else
+			bone[i].y = Point3f(0, -1, 0);
+
+		bone[i].x = bone[i].y ^ bone[i].z;
+		bone[i].x.Normalize();
+		bone[i].y = bone[i].z ^ bone[i].x;
+		bone[i].y.Normalize();
+
+		bone[i].L.SetRow(0, bone[i].x);
+		bone[i].L.SetRow(1, bone[i].y);
+		bone[i].L.SetRow(2, bone[i].z);
+		Invert<float>(bone[i].L);
+	}
+}
+
+void CSkeleton::UpdateLocalFrame()
+{
+
+	for (int i = 0; i < bone.size(); i++)
+	{
+		Point3f & s = vert[bone[i].node];
+		Point3f & d = vert[bone[i].child];
+
+		bone[i].z = (d - s).Normalize();
+
+		if (bone[i].z_prev == bone[i].z)
+			continue;
+
+		float angle = Angle(bone[i].z_prev, bone[i].z);
+		Point3f axis = (bone[i].z_prev ^ bone[i].z).Normalize();
+
+		Matrix33f mrot;
+		mrot.SetRotateRad(angle, axis);
+	
+		bone[i].y = mrot * bone[i].y;
+		bone[i].x = mrot * bone[i].x;
+
+		bone[i].L.SetRow(0, bone[i].x);
+		bone[i].L.SetRow(1, bone[i].y);
+		bone[i].L.SetRow(2, bone[i].z);
+		Invert<float>(bone[i].L);
+
+		bone[i].z_prev = bone[i].z;
+	}
+	//{
+	//	Point3f & s = vert[bone[i].node];
+	//	Point3f & d = vert[bone[i].child];
+
+	//	bone[i].z = (d - s).Normalize();
+
+	//	if ((bone[i].z * Point3f(0, 0, 1)) > 0)
+	//		bone[i].y = Point3f(0, 1, 0);
+	//	else
+	//		bone[i].y = Point3f(0, -1, 0);
+
+	//	bone[i].x = bone[i].y ^ bone[i].z;
+	//	bone[i].x.Normalize();
+	//	bone[i].y = bone[i].z ^ bone[i].x;
+	//	bone[i].y.Normalize();
+
+	//	bone[i].L.SetRow(0, bone[i].x);
+	//	bone[i].L.SetRow(1, bone[i].y);
+	//	bone[i].L.SetRow(2, bone[i].z);
+	//	Invert<float>(bone[i].L);
+	//};
+
+
+}
+
+void CSkeleton::Update()
+{
+	int nbIters = 10;
+	for (int i = 0; i < nbIters; i++)
+	{
+		for (int i = 0; i < bone.size(); i++)
+		{
+			Point3f & s = vert[bone[i].node];
+			Point3f & d = vert[bone[i].child];
+
+			Point3f delta = s - d;
+			float dist = delta.Norm();
+
+			double diff = (dist - bone[i].rdist) / dist;
+
+			s -= delta * 0.5 * diff * 1.f;//stiffness;
+			d += delta * 0.5 * diff * 1.f;//stiffness;
+		}
+
+		// do not move the root
+		for (int i = 0; i< vert.size(); i++)
+			if (link[i].parent == -1)
+			{
+				vert[i] = vert_rest[i];
+				for (int j = 0; j < link[i].childs.size(); j++)
+				{
+					int id_child = link[i].childs[j];
+					vert[id_child] = vert_rest[id_child];
+				}
+			}
+	}
+
+	// update L for each bone
+	UpdateLocalFrame();
+}
+
+
+int CSkeleton::FindLink(const Point3f & p)
+{
+	for (int i = 0; i < vert.size(); i++)
+		if ((p - vert[i]).SquaredNorm() < 0.0001f)
+			return i;
+
+	return -1;
+}
+
+void CSkeleton::AddLink(const Point3f & p)
+{
+	int index = FindLink(p);
+	if (index != -1)	// the link already exists
+	{
+		cout << "link " << index << "already exists" << endl;
+		return;
+	}
+
+	CLink l;
+	l.parent = -1;
+	vert.push_back(p);
+	vert_rest.push_back(p);
+	l.node = vert.size() - 1;
+
+	link.push_back(l);
+}
+
+void CSkeleton::AddLink(const Point3f & s, const Point3f & d)
+{
+	AddLink(s);	// add the links, do nothing is they already exists
+	AddLink(d);
+
+	int source = FindLink(s); 
+	int dest = FindLink(d);
+	assert(dest != -1);
+
+	link[source].childs.push_back(dest);
+	link[dest].parent = source;
+
+	Init();
+}
+
+void CSkeleton::IncBoneToShow()
+{
+	bone_to_show_index = (bone_to_show_index + 1) % bone.size();
+	printf("showing bone: %d\n", bone_to_show_index);
+}
+
+void CSkeleton::DecBoneToShow()
+{
+	bone_to_show_index--;
+	if (bone_to_show_index < 0)
+		bone_to_show_index = bone.size() - 1;
+	printf("showing bone: %d\n", bone_to_show_index);
+}
+
+
+void CSkeleton::Draw()
+{
+	glDisable(GL_LIGHTING);
+	glEnable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+	glBegin(GL_LINES);
+	for (int i = 0; i < bone.size(); i++)
+	{
+		Point3f & s = vert[bone[i].node];
+		Point3f & d = vert[bone[i].child];
+		glColor4f(1, 1, 1, 1);	// joint
+		if (i == bone_to_show_index)
+			glColor4f(1, 0, 1, 1);	// bone currently showed
+
+		glVertex(s);
+		glVertex(d);
+		glColor4f(0, 0, 1, 1);	// z axis
+		glVertex(s);
+		glVertex(s + bone[i].z * bbox.Diag() * 0.05);
+		glColor4f(1, 0, 0, 1);	// x axis
+		glVertex(s);
+		glVertex(s + bone[i].x * bbox.Diag() * 0.05);
+		glColor4f(0, 1, 0, 1);	// y axis
+		glVertex(s);
+		glVertex(s + bone[i].y * bbox.Diag() * 0.05);
+	}
+	glEnd();
+
+	// draw the vertices belonging to the last bone
+	glPointSize(4.f);
+	glBegin(GL_POINTS);
+	if (bone_to_show_index != -1)
+	for (int i = 0; i < bone[bone_to_show_index].vp.size(); i++)
+	{
+		Color4f c;
+		float min = 0;
+		float max = 1;
+		c.ColorRamp(min, max, 1 - bone[bone_to_show_index].w[i]);
+
+		glColor(c);
+		Point3f & s = bone[bone_to_show_index].vp[i]->P();
+		glVertex(s);
+	}
+	glEnd();
+
+
+
+	glPointSize(8.f);
+	glBegin(GL_POINTS);
+	glColor4f(1, 0, 0, 1);
+	for (int i = 0; i < link.size(); i++)
+	{
+		Point3f & s = vert[i];
+		glVertex(s);
+		//glPushMatrix();
+		//glTranslate(s);
+		//glutSolidSphere(2, 10, 10);
+		//glPopMatrix();
+	}
+	if (vert.size() > 0)
+	{
+		glColor4f(0, 1, 1, 1);
+		Point3f & s = vert[0];	// root
+		glVertex(s);
+	}
+	glEnd();
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+	glEnable(GL_LIGHTING);
+}

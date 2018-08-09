@@ -1,0 +1,2 @@
+OpenGL-based scientific visualization software.
+developped to visualize numerical simulation results on unstructured meshes in two and three dimensions. Scalar, vector and tensor fields can be easily associated and displayed with meshes.

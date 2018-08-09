@@ -1,0 +1,597 @@
+#include "model.h"
+#include "mesh_gl.h"
+#include "skeleton.h"
+
+#include <vcg/space/intersection3.h>
+#include <vcg/math/matrix33.h>
+
+CModel::CModel()
+{
+	// used when a xml archive is created from scratch
+	name = "masha";
+	skeleton = NULL;
+#if 1
+	{
+		CMeshGL * m = new CMeshGL();
+		m->vs = "phong.vs";
+		m->fs = "phong.fs";
+		//m->vs = "skin_brdf.vs";
+		//m->fs = "skin_brdf.fs";
+
+		m->filename = "mh/braccio_000.obj";
+		m->color = Color4f(0, .5, .5, 1);	// cyan
+
+		//m->material.textures.insert(pair<string, string>("diff_texture",	"mh/texture.png"));
+		//m->material.textures.insert(pair<string, string>("spec_texture",	"mh/spec.png"));
+		//m->material.textures.insert(pair<string, string>("nmap_texture",	"mh/normal.png"));
+		//m->material.textures.insert(pair<string, string>("skin_ramp",		"skin_tone/skin10_2.png"));
+
+		meshes.push_back(m);
+	}
+	{
+		CMeshGL * m = new CMeshGL();
+		m->vs = "phong.vs";
+		m->fs = "phong.fs";
+		m->filename = "mh/eye_left.obj";
+//		m->material.textures.insert(pair<string, string>("diff_texture",	"mh/texture.png"));
+//		m->material.textures.insert(pair<string, string>("nmap_texture",	"eye_nm.jpg"));
+
+		meshes.push_back(m);
+	}
+	{
+		CMeshGL * m = new CMeshGL();
+		m->vs = "phong.vs";
+		m->fs = "phong.fs";
+		m->filename = "mh/eye_right.obj";
+//		m->material.textures.insert(pair<string, string>("diff_texture",	"mh/texture.png"));
+//		m->material.textures.insert(pair<string, string>("nmap_texture",	"eye_nm.jpg"));
+
+		meshes.push_back(m);
+	}
+
+	//{
+	//	CMeshGL * m = new CMeshGL();
+	//	m->vs = "skin_brdf.vs";
+	//	m->fs = "skin_brdf.fs";
+
+	//	m->filename = "mh/braccio_080.obj";
+
+	//	m->material.textures.insert(pair<string, string>("diff_texture",	"mh/texture.png"));
+	//	m->material.textures.insert(pair<string, string>("spec_texture",	"mh/spec.png"));
+	//	m->material.textures.insert(pair<string, string>("nmap_texture",	"mh/normal.png"));
+	//	m->material.textures.insert(pair<string, string>("skin_ramp",		"skin_tone/skin10_2.png"));
+
+	//	meshes.push_back(m);
+	//}
+
+	{
+		CMeshGL * m = new CMeshGL();
+		m->vs = "phong.vs";
+		m->fs = "phong.fs";
+
+		m->filename = "mh/braccio_125.obj";
+		m->color = Color4f(1, .5, 0, .5);	// orange
+		m->is_static = true;
+		m->is_transparent = true;
+
+		meshes.push_back(m);
+	}
+
+
+	skeleton = new CSkeleton();
+////	skeleton->filename = "makehumanbase.skel";
+//	skeleton->filename = "base_.skel";
+//	skeleton->filename = "foo.skel";
+
+#endif
+#if 0
+	{
+		CMeshGL * m = new CMeshGL();
+		m->vs = "skin_brdf.vs";
+		m->fs = "skin_brdf.fs";
+		//m->vs = "phong.vs";
+		//m->fs = "phong.fs";
+//		m->filename = "masha.obj";
+		m->filename = "masha_vt.obj";
+//		m->filename = "01.masha_smile.obj";
+//		m->filename = "masha.open_smile.butterfly.obj";
+		m->material.textures.insert(pair<string, string>("diff_texture",	"body_df1_1024.jpg"));
+		m->material.textures.insert(pair<string, string>("spec_texture",	"body_sp_1024.jpg"));
+		m->material.textures.insert(pair<string, string>("nmap_texture",	"body_n_1024.jpg"));
+		//m->material.textures.insert(pair<string, string>("occ_texture",		"head_oc.jpg"));
+		m->material.textures.insert(pair<string, string>("skin_ramp",		"skin_ramp.jpg"));
+
+		meshes.push_back(m);
+	}
+
+	{
+		CMeshGL * m = new CMeshGL();
+		m->vs = "phong_nm.vs";
+		m->fs = "phong_nm.fs";
+		m->filename = "eye_left.obj";
+		m->material.textures.insert(pair<string, string>("diff_texture",	"eyediff.jpg"));
+		m->material.textures.insert(pair<string, string>("nmap_texture",	"eye_nm.jpg"));
+
+		meshes.push_back(m);
+	}
+	{
+		CMeshGL * m = new CMeshGL();
+		m->vs = "phong_nm.vs";
+		m->fs = "phong_nm.fs";
+		m->filename = "eye_right.obj";
+		m->material.textures.insert(pair<string, string>("diff_texture",	"eyediff.jpg"));
+		m->material.textures.insert(pair<string, string>("nmap_texture",	"eye_nm.jpg"));
+
+		meshes.push_back(m);
+	}
+
+	{
+		CMeshGL * m = new CMeshGL();
+		m->vs = "phong_nm.vs";
+		m->fs = "phong_nm.fs";
+		m->filename = "teeth_lower.obj";
+		m->material.textures.insert(pair<string, string>("diff_texture",	"body_df1_1024.jpg"));
+		m->material.textures.insert(pair<string, string>("spec_texture",	"body_sp_1024.jpg"));
+		m->material.textures.insert(pair<string, string>("nmap_texture",	"body_n_1024.jpg"));
+
+		meshes.push_back(m);
+	}
+
+	{
+		CMeshGL * m = new CMeshGL();
+		m->vs = "phong_nm.vs";
+		m->fs = "phong_nm.fs";
+		m->filename = "teeth_upper.obj";
+		m->material.textures.insert(pair<string, string>("diff_texture",	"body_df1_1024.jpg"));
+		m->material.textures.insert(pair<string, string>("spec_texture",	"body_sp_1024.jpg"));
+		m->material.textures.insert(pair<string, string>("nmap_texture",	"body_n_1024.jpg"));
+
+		meshes.push_back(m);
+	}
+
+	{
+		CMeshGL * m = new CMeshGL();
+		m->vs = "phong_nm.vs";
+		m->fs = "phong_nm.fs";
+		m->filename = "tongue.obj";
+		m->material.textures.insert(pair<string, string>("diff_texture",	"body_df1_1024.jpg"));
+		m->material.textures.insert(pair<string, string>("spec_texture",	"body_sp_1024.jpg"));
+		m->material.textures.insert(pair<string, string>("nmap_texture",	"body_n_1024.jpg"));
+
+		meshes.push_back(m);
+	}
+
+	
+	//anim_dir = ".\\morphs\\S001-108";
+	//anim_dir = ".\\morphs\\S002-009";
+	//anim_dir = ".\\morphs\\S001-117";
+
+	skeleton = new CSkeleton();
+//	skeleton->filename = "masha.skel";
+#endif
+
+}
+
+string CModel::Init()
+{
+	string err; 
+	for (int i = 0; i < meshes.size(); i++)
+	{
+		err = meshes[i]->Init();
+		if (!err.empty())
+		{
+			err += " " + meshes[i]->filename;
+			break;
+		}
+	}
+
+	if (!anim_dir.empty())
+	{
+		if (meshes.size() > 0)
+			meshes[0]->LoadMorphs(anim_dir, "skin");
+		if (meshes.size() > 1)
+			meshes[1]->LoadMorphs(anim_dir, "eye_left");
+		if (meshes.size() > 2)
+			meshes[2]->LoadMorphs(anim_dir, "eye_right");
+		if (meshes.size() > 3)
+			meshes[3]->LoadMorphs(anim_dir, "teeth_lower");
+		if (meshes.size() > 4)
+			meshes[4]->LoadMorphs(anim_dir, "teeth_upper");
+		if (meshes.size() > 5)
+			meshes[5]->LoadMorphs(anim_dir, "tongue");
+	}
+
+	if (skeleton)
+	{
+		skeleton->Load();
+		HeatWeights();
+	}
+
+	return err;
+}
+
+int CModel::GetNbMorphs()
+{
+	return meshes[0]->morphs.size();
+}
+
+void CModel::ApplyMorph(int index)
+{
+	if (GetNbMorphs() == 0)
+		return;
+
+	assert(index < GetNbMorphs());
+	for (int i = 0; i < meshes.size(); i++)
+		meshes[i]->ApplyMorph(index);
+}
+
+
+void CModel::HeatWeights()
+{
+	// by now, consider just a bone
+
+	if (meshes.empty())
+		return;
+
+	vector<CBone>::iterator bi = skeleton->bone.begin();
+	for (; bi != skeleton->bone.end(); bi++)
+	{
+
+		CBone & bone = *bi;	// get the last bone in mesh[0] (left lower arm)
+		//		CBone & bone = skeleton->bone.front();
+
+		// get the corresponding segment
+		Point3f & s = skeleton->vert[bone.node];
+		Point3f & d = skeleton->vert[bone.child];
+		Segment3f seg_bone(s, d);
+
+		CMesh::GridType & grid = meshes[0]->grid;
+		CMesh::SpatialGridType & spatial_grid = meshes[0]->spatial_grid;
+
+		meshes[0]->ClearGridWeights();
+
+		// intersect the segment with the grid
+		for (int x = 0; x < grid.siz[0]; x++)
+		{
+			for (int y = 0; y < grid.siz[1]; y++)
+			{
+				for (int z = 0; z < grid.siz[2]; z++)
+				{
+					CVoxel & vox = grid.Grid(x, y, z);
+					if (vox.solid)
+					{
+						CMesh::BoxType box;
+						spatial_grid.IPiToBox(Point3i(x, y, z), box);
+
+						Point3f p; // intersecting point (if any)
+						bool res = IntersectionSegmentBox<float>(box, seg_bone, p);
+
+						if (res)
+							vox.weight = 1.f;	// weights 1 intersecting cells
+
+					}
+				}
+			}
+		}
+
+		// the bone is "warm" now; start to diffuse the heat
+
+		// create a temporary voxel grid
+		CMesh::GridType diff_grid;
+		diff_grid.dim = grid.dim;
+		diff_grid.voxel = grid.voxel;
+		diff_grid.siz = grid.siz;
+		diff_grid.bbox = grid.bbox;
+		diff_grid.Create( spatial_grid.siz, CVoxel() );
+
+		// diffuse the weights
+		int nbIters = 5;
+		for (int nb = 0; nb < nbIters; nb++)
+		{
+			for (int x = 0; x < grid.siz[0]; x++)
+			{
+				for (int y = 0; y < grid.siz[1]; y++)
+				{
+					for (int z = 0; z < grid.siz[2]; z++)
+					{
+						CVoxel & vox = grid.Grid(x, y, z);
+						CVoxel & diff_vox = diff_grid.Grid(x, y, z);
+						if (vox.weight == 1)
+						{
+							diff_vox.weight = 1;
+							continue;	// bone voxels must not be diffused
+						}
+
+						float weight_sum = 0;
+						int nbVoxels = 0;
+						for (int i = -1; i <= 1; i++) 
+						{
+							for (int j = -1; j <= 1; j++) 
+							{
+								for (int k = -1; k <= 1; k++) 
+								{
+									Point3i pi(x + i, y + j, z + k);
+									if (pi[0] < 0 || pi[0] >= diff_grid.siz[0] || pi[1] < 0 || pi[1] >= diff_grid.siz[1] || pi[2] < 0 || pi[2] >= diff_grid.siz[2])
+										continue;	// out of grid bounds
+
+									CVoxel & v = grid.Grid(x + i, y + j, z + k);
+									weight_sum += v.weight;
+									nbVoxels++;
+								}
+							}
+						}
+
+						diff_vox.weight = weight_sum / (float)nbVoxels;
+					}
+				}
+			}
+
+			// copy the weights in the diffused grid into the original grid
+			for (int x = 0; x < grid.siz[0]; x++)
+				for (int y = 0; y < grid.siz[1]; y++)
+					for (int z = 0; z < grid.siz[2]; z++)
+					{
+						CVoxel & vox = grid.Grid(x, y, z);
+						CVoxel & diff_vox = diff_grid.Grid(x, y, z);
+
+						vox.weight = diff_vox.weight;
+					}
+
+					printf("%d\r", nb + 1);
+		}
+		printf("\n");
+
+		// now in diff_vox there are all the weights for the bone
+		// store the weights in the corresponding vertices
+		for (int x = 0; x < grid.siz[0]; x++)
+			for (int y = 0; y < grid.siz[1]; y++)
+				for (int z = 0; z < grid.siz[2]; z++)
+				{
+					CVoxel & vox = grid.Grid(x, y, z);
+					if (vox.solid && (vox.weight > 0))
+					{
+						CMesh::BoxType b;
+						spatial_grid.IPiToBox(Point3i(x, y, z), b);
+
+						for (vector<CFace *>::iterator fi = vox.face.begin(); fi != vox.face.end(); fi++)
+						{
+							for (int i = 0; i < 3; i++)
+							{
+								CVertex & v = *(*fi)->V(i);
+								if (b.IsIn(v.P()))
+								{
+									CVertex::CBoneWeight bw;
+									bw.bone = &bone;
+									bw.weight = vox.weight;
+
+									v.PushBoneWeight(bw);
+								}
+							}
+						}
+					}
+				}
+
+				// assign the weights to the additional meshes
+				if (meshes.size() > 0)
+					for (int i_mesh = 1; i_mesh < meshes.size(); i_mesh++)
+					{
+						if (!meshes[i_mesh]->is_static)
+						for (int x = 0; x < grid.siz[0]; x++)
+							for (int y = 0; y < grid.siz[1]; y++)
+								for (int z = 0; z < grid.siz[2]; z++)
+								{
+									CVoxel & vox = grid.Grid(x, y, z);
+									if (vox.solid && (vox.weight > 0))
+									{
+										CMesh::BoxType b;
+										spatial_grid.IPiToBox(Point3i(x, y, z), b);
+
+										CMesh::VertexIterator vi = meshes[i_mesh]->vert.begin();
+										for (; vi != meshes[i_mesh]->vert.end(); vi++)
+										{
+											if (b.IsIn(vi->P()))
+											{
+												CVertex::CBoneWeight bw;
+												bw.bone = &bone;
+												bw.weight = vox.weight;
+
+												vi->PushBoneWeight(bw);
+											}
+										}
+									}
+								}
+					}
+	}
+
+#if 0
+	bool weightless = true;
+
+	while (0)//(weightless)
+	{
+		// diffuse neighbours weights on vertices without weight
+		for (CMesh::VertexIterator vi = meshes[0]->vert.begin(); vi != meshes[0]->vert.end(); vi++)
+		{
+			if (!vi->bone_weight.empty())
+				continue;
+
+			//	for each face in the star of v
+			vcg::face::VFIterator<CFace> vfi(&*vi); //initialize the iterator to the first face
+			vfi.f = vi->VFp();
+			vfi.z = vi->VFi();
+
+			for (; !vfi.End(); ++vfi)
+			{
+				CFace * f = vfi.F();
+
+				CVertex & v1 = *(vfi.f->V((vfi.z + 1) % 3));
+				CVertex & v2 = *(vfi.f->V((vfi.z + 2) % 3));
+				if (!v1.bone_weight.empty())
+				{
+					for (int i = 0; i < v1.bone_weight.size(); i++)
+					{
+						CVertex::CBoneWeight bw = v1.bone_weight[i];
+						vi->PushBoneWeight(bw);
+					}
+					break;
+				}
+				else if (!v2.bone_weight.empty())
+				{
+					for (int i = 0; i < v2.bone_weight.size(); i++)
+					{
+						CVertex::CBoneWeight bw = v2.bone_weight[i];
+						vi->PushBoneWeight(bw);
+					}
+					break;
+				}
+			}
+		}
+
+		weightless = false;
+		int nb_weightless = 0;
+		for (CMesh::VertexIterator vi = meshes[0]->vert.begin(); vi != meshes[0]->vert.end(); vi++)
+		{
+			if (vi->bone_weight.empty())
+			{
+				weightless = true;
+				nb_weightless++;
+			}
+		}
+		printf("weightless: %d\n", nb_weightless);
+	}
+#endif
+
+	// normalize weights
+	for (int i_mesh = 0; i_mesh < meshes.size(); i_mesh++)
+		for (CMesh::VertexIterator vi = meshes[i_mesh]->vert.begin(); vi != meshes[i_mesh]->vert.end(); vi++)
+			vi->NormalizeWeights();
+
+	// assign verices and weights to the bones
+	for (int i_mesh = 0; i_mesh < meshes.size(); i_mesh++)
+		for (CMesh::VertexIterator vi = meshes[i_mesh]->vert.begin(); vi != meshes[i_mesh]->vert.end(); vi++)
+		{
+			for (vector<CVertex::CBoneWeight>::iterator it = vi->bone_weight.begin(); it != vi->bone_weight.end(); it++)
+			{
+				CVertex::CBoneWeight & bw = *it;
+
+				CBone & bone = *(bw.bone);
+				bone.vp.push_back(&*vi);
+				bone.w.push_back(bw.weight);
+			}
+		}
+
+
+	// assign coordinates in the local frame of the bone to which the vertex belongs to
+	skeleton->Update();
+	for (int i_mesh = 0; i_mesh < meshes.size(); i_mesh++)
+	for (CMesh::VertexIterator vi = meshes[i_mesh]->vert.begin(); vi != meshes[i_mesh]->vert.end(); vi++)
+	{
+		for (vector<CVertex::CBoneWeight>::iterator it = vi->bone_weight.begin(); it != vi->bone_weight.end(); it++)
+		{
+			CVertex::CBoneWeight & bw = *it;
+
+			CBone & bone = *(bw.bone);
+			Point3f v = vi->P() - skeleton->vert[bone.node];
+
+			float lx = v * bone.x;
+			float ly = v * bone.y;
+			float lz = v * bone.z;
+
+			bw.lcoord = Point3f(lx, ly, lz);
+		}
+	}
+
+#if 0
+	// for debug purposes, draw the vertex weights as colors
+	for (CMesh::VertexIterator vi = meshes[0]->vert.begin(); vi != meshes[0]->vert.end(); vi++)
+	{
+		float min = 0;
+		float max = 1;
+		Color4f c;
+		float weight = 0;
+		if (!vi->weight.empty())
+			weight = vi->weight.begin()->second;
+
+		c.ColorRamp(min, max, 1 - weight);
+
+		vi->C()[0] = c[0] * 255;
+		vi->C()[1] = c[1] * 255;
+		vi->C()[2] = c[2] * 255;
+		vi->C()[3] = 255;
+	}
+#endif
+}
+
+void CModel::Draw()
+{
+	if (skeleton)
+		skeleton->Update();
+#if 1
+	// update position of the vertices
+	if (!meshes.empty())
+		for (int i_mesh = 0; i_mesh < meshes.size(); i_mesh++)
+		for (CMesh::VertexIterator vi = meshes[i_mesh]->vert.begin(); vi != meshes[i_mesh]->vert.end(); vi++)
+		{
+			Point3f pos(0, 0, 0);
+			if (vi->bone_weight.empty())
+				continue;
+
+			vector<CVertex::CBoneWeight>::iterator it = vi->bone_weight.begin();
+			for (; it != vi->bone_weight.end(); it++)
+			{
+				CVertex::CBoneWeight & bw = *it;
+				CBone & bone = *(bw.bone);
+
+				pos += (skeleton->vert[bone.node] + bone.L * bw.lcoord) * bw.weight;
+			}
+			vi->P() = pos;
+		}
+#endif
+#if 0
+		/////////////// EYES - Gaze FOLLOW
+		// compute point of view
+		GLdouble mm[16];
+		glGetDoublev(GL_MODELVIEW_MATRIX, mm);
+
+		Matrix44d mv(mm);
+		Transpose(mv);
+		Invert(mv);
+
+		Point4d pov = mv * Point4d(0, 0, 0, 1);
+		Point3f pov3(pov[0], pov[1], pov[2]);
+
+		if (meshes.size() > 1)
+		{
+			meshes[1]->GazeFollow(pov3);
+			meshes[1]->PitchTexture();
+			meshes[1]->YawTexture();
+			meshes[2]->GazeFollow(pov3);
+			meshes[2]->PitchTexture();
+			meshes[2]->YawTexture();
+		}
+
+		////////////////////
+#endif
+
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		for (int i = 0; i < meshes.size(); i++)
+		{
+			glPolygonOffset(0,0);
+//			meshes[i]->Update();
+			if (i > 2)
+				glPolygonOffset(0.1, 0.1);
+			meshes[i]->Draw();
+		}
+
+		if (skeleton)
+			skeleton->Draw();
+}
+
+CModel::~CModel()
+{
+	for (int i = 0; i < meshes.size(); i++)
+		delete meshes[i];
+	meshes.clear();
+
+	if (skeleton)
+		delete skeleton;
+}

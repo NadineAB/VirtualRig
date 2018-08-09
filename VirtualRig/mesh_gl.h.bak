@@ -1,0 +1,49 @@
+#include <GL/glew.h>
+#include "mesh.h"
+
+/// Opengl related imports
+#include <wrap/gl/trimesh.h>
+#include <wrap/gl/decorator.h>
+#include <wrap/gl/shaders.h>
+
+// xml serialization related imports
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/serialization/base_object.hpp>
+
+class CMeshGL : public CMesh
+{
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        // serialize base class information
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(CMesh);
+        ar & BOOST_SERIALIZATION_NVP(vs);
+        ar & BOOST_SERIALIZATION_NVP(fs);
+    }
+
+
+	ProgramVF * shp;
+	bool shaders_inited;
+	bool textures_inited;
+	void InitShader();
+	void InitTextures();
+
+public:
+	string vs;
+	string fs;
+
+	CMeshGL();
+
+	string Init();
+	void Draw();
+	void DrawGrid();
+
+	// the active mesh opengl wrapper
+	GlTrimesh<CMesh> glw;
+
+	/// the active mesh decorator (bbox, normals, etc)
+	MeshDecorator<CMesh> md;
+
+};

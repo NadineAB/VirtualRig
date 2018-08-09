@@ -1,0 +1,93 @@
+#ifndef __SKELETON__
+#define __SKELETON__
+
+#include <vcg/math/matrix33.h>
+#include <vcg/space/point3.h>
+#include <vcg/space/box3.h>
+#include <vector>
+
+using namespace vcg;
+using namespace std;
+
+class CMesh;
+class CVertex;
+
+class CBone
+{
+public:
+	int node;
+	int parent;
+	int child;
+
+	float rdist;	// rest distance
+
+	//	Point3f p;
+
+	Matrix33<float> L;	// local coordinate frame
+
+	vector<CVertex*> vp;	// vector of pointers to the vertices handled by this bone
+	vector<float> w;	// weight of the i-th vertex in vp
+
+	//Point3f X()	{		return Point3f(L[0][0], L[1][0], L[2][0]);	}
+	//Point3f Y()	{		return Point3f(L[0][1], L[1][1], L[1][2]);	}
+	//Point3f Z()	{		return Point3f(L[0][2], L[2][1], L[2][2]);	}
+
+	Point3f x, y, z;		// coordinate axis
+
+	Point3f z_prev;	// z vector at the previous iteration
+};
+
+class CSkeleton
+{
+public:
+	// helper struct to build the bones from the file format of pinocchio
+	// http://www.mit.edu/~ibaran/autorig/
+	class CLink
+	{
+	public:
+		int node;
+		int parent;
+		vector<int> childs;
+	};
+
+	int FindLink(int node)
+	{
+		for (int i = 0; i < link.size(); i++)
+			if (link[i].node == node)
+				return i;
+
+		return -1;
+	}
+
+	int FindLink(const Point3f & p);
+	void AddLink(const Point3f & p);
+	void AddLink(const Point3f & s, const Point3f & d);
+
+	vector<CLink> link;
+	vector<CBone> bone;
+	string filename;
+
+	Box3f bbox;
+	CMesh * mesh;
+	int bone_to_show_index;
+
+	vector<Point3f> vert;		// position of the i-th link 
+	vector<Point3f> vert_rest;	// rest position of the i-th link 
+
+	void Reset();
+	int Load();
+	int Save();
+	void Init();
+	void Assign(CMesh * mesh);
+	void Update();
+	
+	void InitLocalFrame();
+	void UpdateLocalFrame();
+
+	void Draw();
+
+	void IncBoneToShow();
+	void DecBoneToShow();
+};
+
+#endif //__SKELETON

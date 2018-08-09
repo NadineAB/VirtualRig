@@ -1,0 +1,26 @@
+- pulsanti:
+	- rendering con texture + shader
+	- flat shading + wireframe
+	- voxelization
+	- seleziona modello da caricare
+
+- arcball nei joints 
+	- per controllare meglio rotazione 
+	- per accedere ai tre gradi di rotazione (e traslazione?)
+	
+- griglia mia, quella di vcg ha troppi problemi 
+	- vedere prima quali funzioni implementare
+	
+- albero delle mesh - cioè il modello
+	check box visibile o no - tre stati (trasparente)
+	carica / salva mesh
+	carica / salva intero modello
+
+- ombra (come? shadowmap?)
+
+	
+- materiali
+	colore del materiale (incide sul colore diffuso / speculare)
+	coeffisiente spec, ecc
+	
+- fittin dello scheletro bvh in masha (tosta, meglio mh forse)
