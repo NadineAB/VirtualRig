@@ -11,4 +11,4 @@ library used in the porject:
 - OpenGL3
 - Threading Building Blocks.
 
-![Screenshot](https://github.com/NadineAB/VirtualRig/blob/master/Screen%20Shot%202018-08-09%20at%2016.26.57.png)
+![Screenshot](https://github.com/NadineAB/VirtualRig/blob/master/Screen%20Shot.png)
