@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "virtua", "virtua\virtua.vcxproj", "{71850664-4E57-4B87-92BD-61BA36667B9C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{71850664-4E57-4B87-92BD-61BA36667B9C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{71850664-4E57-4B87-92BD-61BA36667B9C}.Debug|Win32.Build.0 = Debug|Win32
+		{71850664-4E57-4B87-92BD-61BA36667B9C}.Release|Win32.ActiveCfg = Release|Win32
+		{71850664-4E57-4B87-92BD-61BA36667B9C}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		VisualSVNWorkingCopyRoot = ..
+	EndGlobalSection
+EndGlobal
