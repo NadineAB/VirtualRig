@@ -9,6 +9,7 @@ libraries used in the project:
 - vcglib
 - Qt
 - OpenGL3
-- Threading Building Blocks.
+- Threading Building Blocks
+- FreeImage 
 
 ![Screenshot](https://github.com/NadineAB/VirtualRig/blob/master/Screen%20Shot.png)
