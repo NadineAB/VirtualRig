@@ -8,6 +8,7 @@ libraries used in the project:
 - Boost
 - vcglib
 - Qt
+- CGAL
 - OpenGL
 - Threading Building Blocks
 - FreeImage 
