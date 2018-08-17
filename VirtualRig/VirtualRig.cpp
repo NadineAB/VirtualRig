@@ -5,7 +5,7 @@
 #include <boost/property_tree/ini_parser.hpp>
 #include "skeleton.h"
 #include "glarea.h"
-#include "virtua.h"
+#include "VirtualRig.h"
 /* \brief:
 QT GUI interface
 */
