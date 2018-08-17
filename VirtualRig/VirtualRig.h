@@ -1,10 +1,10 @@
-#ifndef VIRTUA_H
-#define VIRTUA_H
+#ifndef VIRTUALRIG_H
+#define VIRTUALRIG_H
 /* \brief:
 QT GUI interface
 */
 #include <QtGui/QMainWindow>
-#include "ui_virtua.h"
+#include "ui_VirtualRig.h"
 
 QT_BEGIN_NAMESPACE
 class QSlider;
@@ -71,4 +71,4 @@ private:
 	void InitMeshFileList();
 };
 
-#endif // VIRTUA_H
+#endif // VIRTUALRIG_H
