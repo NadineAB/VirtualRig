@@ -10,7 +10,7 @@ libraries used in the project:
 - Qt
 - CGAL
 - OpenGL
-- Threading Building Blocks
+- Threading Building Blocks (TBB)
 - FreeImage lib 
 
 ![Screenshot](https://github.com/NadineAB/VirtualRig/blob/master/Screen%20Shot.png)
