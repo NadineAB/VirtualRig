@@ -1,4 +1,4 @@
-#include "virtua.h"
+#include "VirtualRig.h"
 #include <QtGui/QApplication>
 
 int main(int argc, char *argv[])
