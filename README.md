@@ -8,7 +8,7 @@ libraries used in the project:
 - vcglib
 - Qt
 - CGAL
-- OpenGL
+- OpenGL + Glew
 - Threading Building Blocks (TBB)
 - FreeImage lib 
 
