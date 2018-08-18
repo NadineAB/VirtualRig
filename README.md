@@ -10,6 +10,6 @@ libraries used in the project:
 - CGAL
 - OpenGL + Glew
 - Threading Building Blocks (TBB)
-- FreeImage lib 
+- FreeImage 
 
 ![Screenshot](https://github.com/NadineAB/VirtualRig/blob/master/Screen%20Shot.png)
