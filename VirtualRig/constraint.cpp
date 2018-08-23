@@ -17,7 +17,6 @@ Constraint :: Constraint()
 	rest_value = 0.f;
 	stiffness = 1.f;
 	phase = -1;
-//	ref_faces = new Bag<Triangle*>(INITIAL_TRIANGLE,Triangle::extract_func);
 
 }
 // constructor to set the default value
