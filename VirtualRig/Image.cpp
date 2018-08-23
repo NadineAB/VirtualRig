@@ -19,7 +19,7 @@ static unsigned int getint(FILE *fp)
 {
   int c, c1, c2, c3;
 
-  /* get 4 bytes*/
+  /* get 4 bytes */
   c = getc(fp);  
   c1 = getc(fp);  
   c2 = getc(fp);  
