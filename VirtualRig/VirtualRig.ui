@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>virtuaClass</class>
+ <class>VirtualRigClass</class>
  <widget class="QMainWindow" name="VirtualRigClass">
   <property name="geometry">
    <rect>
