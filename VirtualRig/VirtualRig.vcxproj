@@ -98,7 +98,7 @@
     <ClCompile Include="GeneratedFiles\Release\moc_glarea.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_virtua.cpp">
+    <ClCompile Include="GeneratedFiles\Release\moc_VirtualRig.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="glarea.cpp" />
@@ -164,7 +164,7 @@
     <ClInclude Include="vector3.h" />
     <ClInclude Include="edge_vertex.h" />
     <ClInclude Include="vertex_parent.h" />
-    <CustomBuild Include="virtua.h">
+    <CustomBuild Include="VirtualRig.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing virtua.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
