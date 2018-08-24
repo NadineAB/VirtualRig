@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="virtua"
+	Name="VirtualRig"
 	ProjectGUID="{FC12C7F6-0693-460D-9FA6-4890D001012E}"
 	Keyword="Qt4VSv1.0"
 	TargetFrameworkVersion="0"
