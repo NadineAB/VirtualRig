@@ -219,7 +219,7 @@
     <ClInclude Include="Image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_virtua.h">
+    <ClInclude Include="GeneratedFiles\ui_VirtualRig.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\vcglib\wrap\gui\trackball.h">
