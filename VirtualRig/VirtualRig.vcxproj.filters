@@ -121,13 +121,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="virtua.qrc">
+    <CustomBuild Include="VirtualRig.qrc">
       <Filter>Header Files\Resource Files</Filter>
     </CustomBuild>
     <CustomBuild Include="glarea.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="virtua.h">
+    <CustomBuild Include="VirtualRig.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="virtua.ui">
