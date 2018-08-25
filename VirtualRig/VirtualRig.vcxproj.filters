@@ -35,13 +35,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GeneratedFiles\qrc_virtua.cpp">
+    <ClCompile Include="GeneratedFiles\qrc_VirtualRig.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_virtua.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_VirtualRig.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_virtua.cpp">
+    <ClCompile Include="GeneratedFiles\Release\moc_VirtualRig.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="BVH.cpp">
@@ -71,7 +71,7 @@
     <ClCompile Include="texture_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="virtua.cpp">
+    <ClCompile Include="VirtualRig.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="skeleton.cpp">
