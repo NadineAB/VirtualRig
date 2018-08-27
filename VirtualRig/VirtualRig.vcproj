@@ -370,7 +370,7 @@
 			ParseFiles="false"
 			>
 			<File
-				RelativePath=".\virtua.qrc"
+				RelativePath=".\VirtualRig.qrc"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
