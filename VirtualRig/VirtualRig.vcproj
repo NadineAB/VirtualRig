@@ -305,7 +305,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\virtua.h"
+				RelativePath=".\VirtualRig.h"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
