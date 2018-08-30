@@ -337,7 +337,7 @@
 			UniqueIdentifier="{99349809-55BA-4b9d-BF79-8FDBB0286EB3}"
 			>
 			<File
-				RelativePath=".\virtua.ui"
+				RelativePath=".\VirtualRig.ui"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
