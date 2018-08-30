@@ -423,7 +423,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\GeneratedFiles\ui_virtua.h"
+				RelativePath=".\GeneratedFiles\ui_VirtualRig.h"
 				>
 			</File>
 			<Filter
