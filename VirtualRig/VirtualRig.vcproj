@@ -403,7 +403,7 @@
 			SourceControlFiles="false"
 			>
 			<File
-				RelativePath=".\GeneratedFiles\qrc_virtua.cpp"
+				RelativePath=".\GeneratedFiles\qrc_VirtualRig.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
