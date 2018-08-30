@@ -444,7 +444,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\GeneratedFiles\Release\moc_virtua.cpp"
+					RelativePath=".\GeneratedFiles\Release\moc_VirtualRig.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
