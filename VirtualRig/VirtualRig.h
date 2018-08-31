@@ -12,13 +12,13 @@ QT_END_NAMESPACE
 
 class GLArea;
 
-class virtua : public QMainWindow
+class VirtualRig : public QMainWindow
 {
 	Q_OBJECT
 
 public:
-	virtua(QWidget *parent = 0, Qt::WFlags flags = 0);
-	~virtua();
+	VirtualRig(QWidget *parent = 0, Qt::WFlags flags = 0);
+	~VirtualRig();
 
 	public slots:
 		void triggered(QAction *);
