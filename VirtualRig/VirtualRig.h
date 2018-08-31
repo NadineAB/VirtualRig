@@ -57,7 +57,7 @@ protected:
 	void keyPressEvent(QKeyEvent *event);
 
 private:
-	Ui::virtuaClass ui;
+	Ui::VirtualRigClass ui;
 
 	QSlider * createSlider();
 
