@@ -141,7 +141,7 @@
     <ClInclude Include="dual_quaternion.h" />
     <ClInclude Include="edge.h" />
     <ClInclude Include="extended_pick.h" />
-    <ClInclude Include="GeneratedFiles\ui_virtua.h" />
+    <ClInclude Include="GeneratedFiles\ui_virtuaRig.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="material.h" />
     <ClInclude Include="matrix.h" />
