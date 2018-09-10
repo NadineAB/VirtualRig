@@ -7,6 +7,7 @@ libraries used in the project:
 - Boost
 - vcglib
 - Qt
+- profiler
 - CGAL
 - OpenGL + Glew
 - Threading Building Blocks (TBB)
