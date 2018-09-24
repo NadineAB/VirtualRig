@@ -130,7 +130,7 @@
     <CustomBuild Include="VirtualRig.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="virtua.ui">
+    <CustomBuild Include="VirtualRig.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
   </ItemGroup>
