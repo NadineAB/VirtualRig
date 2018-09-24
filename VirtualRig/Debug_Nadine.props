@@ -9,7 +9,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(QTDIR)\lib;C:\Users\nadin_000\Desktop\Rigging_System\vcglib;$SolutionDir)\virtua\include\vcg\warp\qt;$(SolutionDir)\virtua\lib\Qt;$(SolutionDir)\virtua\lib\openGL;$(SolutionDir)\virtua\lib\freeimage;$(SolutionDir)\virtua\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(QTDIR)\lib;C:\Users\nadin_000\Desktop\Rigging_System\vcglib;$SolutionDir)\VirtualRig\include\vcg\warp\qt;$(SolutionDir)\virtua\lib\Qt;$(SolutionDir)\virtua\lib\openGL;$(SolutionDir)\virtua\lib\freeimage;$(SolutionDir)\virtua\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>glew32mx.lib;glew32s.lib;glew32mxs.lib;glew32.lib;FreeImage.lib;libboost_serialization-vc100-mt-gd-1_54.lib;libboost_wserialization-vc100-mt-gd-1_54.lib;libboost_system-vc100-mt-gd-1_54.lib;libboost_filesystem-vc100-mt-gd-1_54.lib;qtmaind.lib;QtCored4.lib;QtGuid4.lib;QtMultimediad4.lib;QtXmld4.lib;QtSqld4.lib;QtOpenGLd4.lib;opengl32.lib;glu32.lib;QtNetworkd4.lib;QtScriptd4.lib;Qt3Supportd4.lib;comdlg32.lib;QAxServerd.lib;QtSvgd4.lib;QtHelpd4.lib;QtWebKitd4.lib;QtXmlPatternsd4.lib;QtTestd4.lib;QtDeclaratived4.lib;phonond4.lib;QtDesigner4.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
