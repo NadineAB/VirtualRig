@@ -5,7 +5,7 @@
   <PropertyGroup />
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)\VirtualRig\include\;C:\Users\nadin_000\Desktop\Rigging_System\vcglib;$(SolutionDir)\virtua\include\vcg;$(SolutionDir)\VirtualRig\include\freeimage;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\VirtualRig\include\;C:\Users\nadin_000\Desktop\Rigging_System\vcglib;$(SolutionDir)\VirtualRig\include\vcg;$(SolutionDir)\VirtualRig\include\freeimage;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
