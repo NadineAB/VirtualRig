@@ -9,7 +9,7 @@
 /* \brief:
 QT GUI interface
 */
-virtua::virtua(QWidget *parent, Qt::WFlags flags)
+VirtualRig::VirtualRig(QWidget *parent, Qt::WFlags flags)
 	: QMainWindow(parent, flags)
 {
 	ui.setupUi(this);
@@ -57,10 +57,6 @@ virtua::virtua(QWidget *parent, Qt::WFlags flags)
 	//BVHComboBox
 	InitBVHFileCom();
 	// activate the loaded bvh
-	//connect(ui.BVHComboBox, SIGNAL(activated(QString)), glArea, SLOT(LoadBvh(QString)) );  // load mesh which load the teterhderal mesh
-     //connect(ui.BVHComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(selectbvhFromCombobox(int)) );
-
-	////// on Error
 	ui.ErrorVisibleCheckBox->setChecked(false);
 	connect(ui.ErrorVisibleCheckBox, SIGNAL(toggled(bool)), this, SLOT(onErrorVisibleToggled(bool)));
 
@@ -71,17 +67,17 @@ virtua::virtua(QWidget *parent, Qt::WFlags flags)
 
 }
 
-void virtua::heatWeightsClick(bool)
+void VirtualRig::heatWeightsClick(bool)
 {
 	//	glArea->model.HeatWeights();
 }
 
-void virtua::nearestBoneWeightsClick(bool)
+void VirtualRig::nearestBoneWeightsClick(bool)
 {
 	//glArea->model.NearestBoneWeights();
 }
 
-void virtua::smoothWeightsClick(bool)
+void VirtualRig::smoothWeightsClick(bool)
 {
 	//glArea->model.SmoothWeights();
 }
