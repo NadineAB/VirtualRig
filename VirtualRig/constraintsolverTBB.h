@@ -8,7 +8,7 @@
 
 using namespace tbb;
 using namespace std;
-#define NUM_ITERATIONS 4// numero massimo di iterazioni per soddisfare i vincoli per rilassamente
+#define NUM_ITERATIONS 4
 // max number of iteration to satisfy the constraints
 #define TIME_STEP 0.001f	
 class ConstraintSolverTBB
