@@ -99,7 +99,7 @@ void VirtualRig::onErrorVisibleToggled(bool b)
 {
 	glArea->show_Error = b;
 }
-void virtua::PlayClick(bool)
+void VirtualRig::PlayClick(bool)
 {
 	// here I should start play the motion but something going wrong
 	glArea->model.skeleton->InitLocalChilds();
@@ -107,7 +107,7 @@ void virtua::PlayClick(bool)
 	glArea->PlayAnimation();
 	
 }
-void virtua::PauseClick(bool)
+void VirtualRig::PauseClick(bool)
 {
 	//cout << " here stop playing ";
 	glArea->model.skeleton->InitLocalChilds();
@@ -117,25 +117,9 @@ void virtua::PauseClick(bool)
 	
 }
 
-// stop the animation 
-/*void virtua::StopClick(bool)
-{
-	cout << " here stop playing ";
-	glArea->playing=false ;
-	glArea->on_animation=false ;
-	//ui.PlayAnimationButton->setText("Play Animation");
-	
-}
-void virtua::SaveObjClick(bool)]
-
-void virtua::OneStepClick(bool)
-{
-
-
-}*/
 // play and Stop button
 // save obj file
-void virtua::SaveObjClick(bool)
+void VirtualRig::SaveObjClick(bool)
 {
 	glArea->model.Saveobj();
 }
