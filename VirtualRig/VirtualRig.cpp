@@ -28,30 +28,11 @@ virtua::virtua(QWidget *parent, Qt::WFlags flags)
 	//mainLayout->addWidget(shinSlider);
 	ui.centralWidget->setLayout(mainLayout);
 
-	//	QActionGroup * shadeGroup = new QActionGroup(this);
-	//	shadeGroup->addAction(ui.actionFlatShading);
-	//	shadeGroup->addAction(ui.actionShader);
-	//	shadeGroup->setExclusive(true);
-	//ui.actionShader->setChecked(true);
-	//connect(shadeGroup, SIGNAL(triggered(QAction *)), this, SLOT(triggered(QAction *)));
-
-	//	ui.actionSkeleton->setChecked(true);
-	//	connect(ui.actionSkeleton, SIGNAL(toggled(bool)), this, SLOT(onSkeletonToggled(bool)));
-
 	ui.bvhVisibleCheckBox->setChecked(true);
 	connect(ui.bvhVisibleCheckBox, SIGNAL(toggled(bool)), this, SLOT(onBvhVisibleToggled(bool)));
 	ui.SkelVisibleCheckBox->setChecked(true);
 	connect(ui.SkelVisibleCheckBox, SIGNAL(toggled(bool)), this, SLOT(onSkeletonToggled(bool)));
 
-	//connect(ui.xscaleSpinBox, SIGNAL(valueChanged(double)), this, SLOT(xscaleChanged(double)));
-	//connect(ui.yscaleSpinBox, SIGNAL(valueChanged(double)), this, SLOT(yscaleChanged(double)));
-	//connect(ui.zscaleSpinBox, SIGNAL(valueChanged(double)), this, SLOT(zscaleChanged(double)));
-
-	//connect(ui.xtransSpinBox, SIGNAL(valueChanged(double)), this, SLOT(xtransChanged(double)));
-	//connect(ui.ytransSpinBox, SIGNAL(valueChanged(double)), this, SLOT(ytransChanged(double)));
-	//connect(ui.ztransSpinBox, SIGNAL(valueChanged(double)), this, SLOT(ztransChanged(double)));
-	// linear blend skinnning
-//	connect(ui.LBSButton, SIGNAL(clicked(bool)), this, SLOT(LBSClick(bool)));
 	
 	// tool to play, pause, resart and stop
 	connect(ui.buttonPlay, SIGNAL(clicked(bool)), this, SLOT(PlayClick(bool))); //  play animation 
@@ -63,13 +44,7 @@ virtua::virtua(QWidget *parent, Qt::WFlags flags)
 	// save obj files
 	connect(ui.ObjButton, SIGNAL(clicked(bool)), this, SLOT(SaveObjClick(bool)));
 
-	//ui.xscaleSpinBox->setValue(glArea->bvh.scalex);
-	//ui.yscaleSpinBox->setValue(glArea->bvh.scaley);
-	//ui.zscaleSpinBox->setValue(glArea->bvh.scalez);
-
-	//ui.xtransSpinBox->setValue(glArea->bvh.transx);
-	//ui.ytransSpinBox->setValue(glArea->bvh.transy);
-	//ui.ztransSpinBox->setValue(glArea->bvh.transz);
+	ox->setValue(glArea->bvh.transz);
 	// load bvh file
 	InitBvhFileList();
 	connect(ui.bvhListView, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(doubleClicked(const QModelIndex &)));
