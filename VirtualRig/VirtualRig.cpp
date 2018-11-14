@@ -87,15 +87,15 @@ void virtua::LBSClick(bool)
 	cout << "linear skin "; 
 	glArea->PlayAnimation();
 }
-void virtua::onBvhVisibleToggled(bool b)
+void VirtualRig::onBvhVisibleToggled(bool b)
 {
 	glArea->show_bvh = b;
 }
-void virtua::onWireVisibleToggled(bool b)
+void VirtualRig::onWireVisibleToggled(bool b)
 {
 	glArea->show_Wire = b;
 }
-void virtua::onErrorVisibleToggled(bool b)
+void VirtualRig::onErrorVisibleToggled(bool b)
 {
 	glArea->show_Error = b;
 }
