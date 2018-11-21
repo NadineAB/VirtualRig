@@ -63,7 +63,7 @@ VirtualRig::VirtualRig(QWidget *parent, Qt::WFlags flags)
 	ui.WireVisibleCheckBox->setChecked(false);
 	connect(ui.WireVisibleCheckBox, SIGNAL(toggled(bool)), this, SLOT(onWireVisibleToggled(bool)));
 
-	setWindowTitle(tr("Virtua"));
+	setWindowTitle(tr("VirtualRig"));
 
 }
 
@@ -81,7 +81,7 @@ void VirtualRig::smoothWeightsClick(bool)
 {
 	//glArea->model.SmoothWeights();
 }
-void virtua::LBSClick(bool)
+void VirtualRig::LBSClick(bool)
 {
 	glArea->on_LBS= true;
 	cout << "linear skin "; 
