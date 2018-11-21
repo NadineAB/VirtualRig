@@ -123,7 +123,7 @@ void VirtualRig::SaveObjClick(bool)
 {
 	glArea->model.Saveobj();
 }
-void virtua::PlayAnimationClick(bool)
+void VirtualRig::PlayAnimationClick(bool)
 {
 /*	cout << " here start playing ";
 	glArea->model.skeleton->InitLocalChilds();
