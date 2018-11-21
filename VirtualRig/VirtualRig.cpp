@@ -143,12 +143,12 @@ void VirtualRig::PlayAnimationClick(bool)
 	//glArea->model.skeleton->Assign(glArea->model.meshes[0]);*/
 }
 
-void virtua::xscaleChanged(double d)
+void VirtualRig::xscaleChanged(double d)
 {
 	glArea->bvh.scalex = d;
 }
 
-void virtua::yscaleChanged(double d)
+void VirtualRig::yscaleChanged(double d)
 {
 	glArea->bvh.scaley = d;
 }
