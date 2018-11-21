@@ -153,17 +153,17 @@ void VirtualRig::yscaleChanged(double d)
 	glArea->bvh.scaley = d;
 }
 
-void virtua::zscaleChanged(double d)
+void VirtualRig::zscaleChanged(double d)
 {
 	glArea->bvh.scalez = d;
 }
 
-void virtua::xtransChanged(double d)
+void VirtualRig::xtransChanged(double d)
 {
 	glArea->bvh.transx = d;
 }
 
-void virtua::ytransChanged(double d)
+void VirtualRig::ytransChanged(double d)
 {
 	glArea->bvh.transy = d;
 }
