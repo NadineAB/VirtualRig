@@ -173,12 +173,12 @@ void virtua::ztransChanged(double d)
 	glArea->bvh.transz = d;
 }
 
-void virtua::onSkeletonToggled(bool b)
+void VirtualRig::onSkeletonToggled(bool b)
 {
 	glArea->model.skeleton->is_visible = b;
 }
 
-void virtua::triggered(QAction* action)
+void VirtualRig::triggered(QAction* action)
 {
 	if (action->text() == "Flat")
 		glArea->selectDrawMode(GLArea::FLATWIRE);
