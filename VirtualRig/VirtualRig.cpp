@@ -168,7 +168,7 @@ void VirtualRig::ytransChanged(double d)
 	glArea->bvh.transy = d;
 }
 
-void virtua::ztransChanged(double d)
+void VirtualRig::ztransChanged(double d)
 {
 	glArea->bvh.transz = d;
 }
