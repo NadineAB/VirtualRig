@@ -187,7 +187,7 @@ void VirtualRig::triggered(QAction* action)
 	//	cout << action->text().toStdString() << endl;
 }
 
-QSlider* virtua::createSlider()
+QSlider* VirtualRig::createSlider()
 {
 	QSlider *slider = new QSlider(Qt::Horizontal);
 	//    slider->setRange(0, glArea->model.GetNbMorphs() - 1);
@@ -199,13 +199,13 @@ QSlider* virtua::createSlider()
 	return slider;
 }
 
-void virtua::onBvhLoaded()
+void VirtualRig::onBvhLoaded()
 {
 	cout << " here wen";
 	shinSlider->setRange(0, glArea->bvh.GetNumFrame() - 1);
 }
 
-void virtua::onMeshLoaded()
+void VirtualRig::onMeshLoaded()
 {
 	//shinSlider->setRange(0, glArea->bvh.GetNumFrame() - 1);
 }
