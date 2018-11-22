@@ -210,7 +210,7 @@ void VirtualRig::onMeshLoaded()
 	//shinSlider->setRange(0, glArea->bvh.GetNumFrame() - 1);
 }
 
-void virtua::keyPressEvent(QKeyEvent *e)
+void VirtualRig::keyPressEvent(QKeyEvent *e)
 {
 	if (e->key() == Qt::Key_Escape)
 		close();
@@ -218,7 +218,7 @@ void virtua::keyPressEvent(QKeyEvent *e)
 		QWidget::keyPressEvent(e);
 }
 // load bvh
-void virtua::InitBvhFileList()
+void VirtualRig::InitBvhFileList()
 {
 	QFileSystemModel *model = new QFileSystemModel;
 	model->setRootPath(QDir::currentPath() + "/bvh");
