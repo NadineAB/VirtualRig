@@ -273,7 +273,7 @@ void VirtualRig ::InitBVHFileCom()
  }
 }
 // load mesh 
-void virtua::InitMeshFileList()
+void VirtualRig::InitMeshFileList()
 {
     
     QString folder="../../virtua/data/";
