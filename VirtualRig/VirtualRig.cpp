@@ -260,7 +260,7 @@ static int addItemsbvhToComboBoxFromFiles(QComboBox *cb, QString folder, QString
     return count;
 }
 // load bvh to com
-void virtua ::InitBVHFileCom()
+void VirtualRig ::InitBVHFileCom()
 {
  QString folder="../../virtua/data/";
     QDir dir(folder);
