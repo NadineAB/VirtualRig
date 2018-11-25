@@ -286,7 +286,7 @@ void virtua::InitMeshFileList()
     int k = addItemsToComboBoxFromFiles( ui.modelComboBox, folder+val, "mesh/",  "Slim" );
      }
 }
-void virtua::doubleClicked(const QModelIndex & index)
+void VirtualRig::doubleClicked(const QModelIndex & index)
 {
 	QFileSystemModel *model = (QFileSystemModel *)ui.bvhListView->model();
 	//QFileInfo	fileInfo ( const QModelIndex & index ) const
