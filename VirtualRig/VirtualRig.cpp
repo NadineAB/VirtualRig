@@ -307,7 +307,7 @@ void VirtualRig::selectModelFromCombobox(int newIndex)
     
 
 }
-virtua::~virtua()
+VirtualRig::~VirtualRig()
 {
 
 }
