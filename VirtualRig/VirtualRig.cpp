@@ -297,7 +297,7 @@ void VirtualRig::doubleClicked(const QModelIndex & index)
 	glArea->LoadBvh(filePath);
 }
 // when ever I change the mesh 
-void virtua::selectModelFromCombobox(int newIndex)
+void VirtualRig::selectModelFromCombobox(int newIndex)
 {
     QString newDataPath = ui.modelComboBox->itemData(newIndex).toString();
     //glArea->loadMesh(newDataPath);
