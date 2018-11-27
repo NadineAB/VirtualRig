@@ -3,7 +3,7 @@
 // coded by Marco Fratarcangeli
 #ifndef __PARTICLE_SYSTEM__
 #define __PARTICLE_SYSTEM__
-#define NUM_ITERATIONS 8// numero massimo di iterazioni per soddisfare i vincoli per rilassamente
+#define NUM_ITERATIONS 8
 // max number of iteration to satisfy the constraints
 #define TIME_STEP 0.001f
 #include <string.h>
