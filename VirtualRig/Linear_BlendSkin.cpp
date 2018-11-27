@@ -9,7 +9,8 @@ Linear_BlendSkin::Linear_BlendSkin()
 }
 void Linear_BlendSkin::FinalizeWeights(CMesh *SmoothWeights)
 {
-/*	//Normalize weights
+	
+	//Normalize weights
      for (vector<Particle>::iterator pi = SmoothWeights->skin._particles.begin(); pi != SmoothWeights->skin._particles.end(); pi++)
 	pi->NormalizeParWeights();
 	
@@ -35,7 +36,7 @@ void Linear_BlendSkin::FinalizeWeights(CMesh *SmoothWeights)
 			bw.lcoord = Vector3(lx, ly, lz); // from local coordinate
 		}
 	}
-	*/
+	
 }
 ///////////////////////////// Performance Profiling \\\\\\\\\\\\\\\\\\\\\\\\\ 
 void Linear_BlendSkin :: ReadyUpadteSkel()
