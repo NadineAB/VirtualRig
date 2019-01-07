@@ -7,6 +7,7 @@ libraries used in the project:
 - Boost
 - vcglib
 - Qt
+- SceneGraph 
 - profiler
 - CGAL
 - OpenGL + Glew
