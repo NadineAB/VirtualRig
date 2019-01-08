@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "virtua", "virtua\virtua.vcxproj", "{71850664-4E57-4B87-92BD-61BA36667B9C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VirtualRig", "VirtualRig\VirtualRig.vcxproj", "{71850664-4E57-4B87-92BD-61BA36667B9C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
