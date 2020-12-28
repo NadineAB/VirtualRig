@@ -10,7 +10,7 @@ libraries used in the project:
 - SceneGraph 
 - profiler
 - CGAL
-- OpenGL + Glew
+- OpenGL + Glew API
 - Threading Building Blocks (TBB)
 - FreeImage 
 
