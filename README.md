@@ -8,7 +8,7 @@ Please see the video on Vimeo for some of the animated results at interactive ra
 libraries used in the project:
 - Boost
 - vcglib
-- Qt
+- Qt toolkit
 - SceneGraph 
 - profilers
 - CGAL
