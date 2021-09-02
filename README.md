@@ -11,7 +11,7 @@ A list of the libraries used in the project:
 - Qt toolkit
 - SceneGraph 
 - profilers
-- CGAL
+- CGAL Lib
 - OpenGL + Glew APIs
 - Intel Threading Building Blocks (TBB)
 - FreeImage lib
