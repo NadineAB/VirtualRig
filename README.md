@@ -13,7 +13,7 @@ A list of the libraries used in the project:
 - profilers
 - CGAL Lib
 - OpenGL + Glew APIs
-- Intel Threading Building Blocks (TBB)
+- Intel Threading Building Blocks (TBB) Lib
 - FreeImage lib
 
 ![Screenshot](https://github.com/NadineAB/VirtualRig/blob/master/Screen%20Shot.png)
