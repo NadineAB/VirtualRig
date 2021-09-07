@@ -10,7 +10,7 @@ A list of the libraries used in the project:
 - vcglib
 - Qt toolkit
 - SceneGraph 
-- profilers
+- Profilers
 - CGAL Lib
 - OpenGL + Glew APIs
 - Intel Threading Building Blocks (TBB) Lib
