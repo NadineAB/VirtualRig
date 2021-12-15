@@ -9,7 +9,7 @@ A list of the libraries used in the project:
 - Boost lib
 - vcglib
 - Qt toolkit
-- SceneGraph 
+- SceneGraph Lib 
 - Profilers
 - CGAL Lib
 - OpenGL + Glew APIs
