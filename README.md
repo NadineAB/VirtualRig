@@ -12,7 +12,7 @@ A list of the libraries used in the project:
 - SceneGraph Lib 
 - Profilers
 - CGAL Lib
-- OpenGL + Glew APIs
+- OpenGL + Glew APIs Lib
 - Intel Threading Building Blocks (TBB) Lib
 - FreeImage Lib
 
