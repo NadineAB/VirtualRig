@@ -8,7 +8,7 @@ Please see the video on Vimeo for some of the animated results at interactive ra
 A list of the libraries used in the project:
 - Boost lib
 - vcglib
-- Qt toolkit
+- Qt toolkit Lib
 - SceneGraph Lib 
 - Profilers
 - CGAL Lib
